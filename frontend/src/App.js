@@ -10,11 +10,11 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
-import TestPage from './pages/TestPage';
 import TestDetailPage from './pages/TestDetailPage';
 import PerformanceTestPage from './pages/PerformanceTestPage';
-import SeoTestPage from './pages/SeoTestPage';
 import SecurityTestPage from './pages/SecurityTestPage';
+import AccessibilityTestPage from './pages/AccessibilityTestPage';
+import BrowserTestPage from './pages/BrowserTestPage';
 
 // Axios configuration for API requests
 import axios from 'axios';
@@ -32,11 +32,12 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/new-test" element={<TestPage />} />
+            
             <Route path="/tests/:id" element={<TestDetailPage />} />
             <Route path="/performance-test" element={<PerformanceTestPage />} />
-            <Route path="/seo-test" element={<SeoTestPage />} />
             <Route path="/security-test" element={<SecurityTestPage />} />
+            <Route path="/accessibility-test" element={<AccessibilityTestPage />} />
+            <Route path="/browser-test" element={<BrowserTestPage />} />
           </Routes>
         </main>
         <Footer />

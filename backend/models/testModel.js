@@ -18,12 +18,16 @@ const testSchema = mongoose.Schema(
     testType: {
       type: String,
       required: true,
-      enum: ['performance', 'security', 'accessibility', 'seo', 'all'],
+      enum: ['performance', 'security', 'accessibility', 'seo', 'browser', 'all'],
     },
     status: {
       type: String,
       enum: ['pending', 'running', 'completed', 'failed'],
       default: 'pending',
+    },
+    parameters: {
+      browsers: [String],
+      options: mongoose.Schema.Types.Mixed
     },
     results: {
       performance: {
@@ -49,8 +53,20 @@ const testSchema = mongoose.Schema(
             name: String,
             severity: String,
             description: String,
+            location: String,
           },
         ],
+        summary: {
+          high: Number,
+          medium: Number,
+          low: Number,
+          informational: Number,
+          total: Number
+        },
+        scanType: {
+          type: String,
+          enum: ['baseline', 'active', 'full']
+        }
       },
       accessibility: {
         score: {
@@ -64,6 +80,8 @@ const testSchema = mongoose.Schema(
             element: String,
           },
         ],
+        passCount: Number,
+        incompleteCount: Number
       },
       seo: {
         score: {
@@ -78,6 +96,28 @@ const testSchema = mongoose.Schema(
           },
         ],
       },
+      browser: {
+        browsers: [
+          {
+            name: String,
+            rendering: String,
+            functionality: String,
+            loadTime: Number,
+            issues: [String]
+          }
+        ],
+        screenshots: [
+          {
+            browser: String,
+            url: String
+          }
+        ],
+        overall: {
+          visualScore: Number,
+          functionalScore: Number,
+          performanceScore: Number
+        }
+      }
     },
     errorMessage: {
       type: String,

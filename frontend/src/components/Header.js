@@ -30,6 +30,44 @@ const Header = () => {
                     Dashboard
                   </Link>
                 </li>
+                
+                <li className="relative group">
+                  <div className="text-white hover:text-blue-200 cursor-pointer">
+                    Tests
+                  </div>
+                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 z-10">
+                    <Link
+                      to="/performance-test"
+                      className="block px-4 py-2 text-gray-800 hover:bg-blue-100"
+                    >
+                      Performance Test
+                    </Link>
+                    <Link
+                      to="/security-test"
+                      className="block px-4 py-2 text-gray-800 hover:bg-blue-100"
+                    >
+                      Security Test
+                    </Link>
+                    <Link
+                      to="/seo-test"
+                      className="block px-4 py-2 text-gray-800 hover:bg-blue-100"
+                    >
+                      SEO Test
+                    </Link>
+                    <Link
+                      to="/accessibility-test"
+                      className="block px-4 py-2 text-gray-800 hover:bg-blue-100"
+                    >
+                      Accessibility Test
+                    </Link>
+                    <Link
+                      to="/browser-test"
+                      className="block px-4 py-2 text-gray-800 hover:bg-blue-100"
+                    >
+                      Browser Test
+                    </Link>
+                  </div>
+                </li>
 
                 <li>
                   <div className="relative group">
@@ -52,8 +90,6 @@ const Header = () => {
                       </button>
                     </div>
                   </div>
-
-
                 </li>
               </>
             ) : (
