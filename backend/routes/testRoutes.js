@@ -6,6 +6,7 @@ const {
   getTestById,
   runTest,
   deleteTest,
+  getDashboardStats
 } = require('../controllers/testController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -13,6 +14,10 @@ const { protect } = require('../middleware/authMiddleware');
 router.route('/')
   .post(protect, createTest)
   .get(protect, getTests);
+
+// Get dashboard statistics
+router.route('/stats')
+  .get(protect, getDashboardStats);
 
 router.route('/:id')
   .get(protect, getTestById)

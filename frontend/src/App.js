@@ -4,6 +4,7 @@ import './App.css';
 
 // Components
 import Footer from './components/Footer';
+import Navbar from './components/Navbar';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -18,15 +19,14 @@ import BrowserTestPage from './pages/BrowserTestPage';
 
 // Axios configuration for API requests
 import axios from 'axios';
-import Header from './components/Header';
 axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen">
-        <Header/>
-        <main className="flex-grow">
+        <Navbar />
+       
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -39,7 +39,7 @@ function App() {
             <Route path="/accessibility-test" element={<AccessibilityTestPage />} />
             <Route path="/browser-test" element={<BrowserTestPage />} />
           </Routes>
-        </main>
+    
         <Footer />
       </div>
     </Router>

@@ -773,10 +773,110 @@ const deleteTest = asyncHandler(async (req, res) => {
   res.json({ message: 'Test removed' });
 });
 
+// @desc    Get dashboard statistics
+// @route   GET /api/tests/stats
+// @access  Private
+const getDashboardStats = asyncHandler(async (req, res) => {
+  try {
+    // Get all tests for the user
+    const tests = await Test.find({ user: req.user._id });
+    
+    // Calculate statistics
+    const totalTests = tests.length;
+    const completedTests = tests.filter(test => test.status === 'completed').length;
+    const failedTests = tests.filter(test => test.status === 'failed').length;
+    const pendingTests = tests.filter(test => test.status === 'pending' || test.status === 'running').length;
+    
+    // Calculate average performance score (for tests that have performance results)
+    let performanceTotal = 0;
+    let performanceCount = 0;
+    
+    tests.forEach(test => {
+      if (test.results && test.results.performance && test.results.performance.score) {
+        performanceTotal += test.results.performance.score * 100; // Convert from 0-1 to 0-100
+        performanceCount++;
+      }
+    });
+    
+    const avgPerformance = performanceCount > 0 
+      ? Math.round(performanceTotal / performanceCount) 
+      : 0;
+    
+    // Get recent tests (latest 5)
+    const recentTests = await Test.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .limit(5);
+    
+    // Format recent tests for frontend
+    const formattedRecentTests = recentTests.map(test => ({
+      id: test._id,
+      url: test.url,
+      testType: test.testType,
+      status: test.status,
+      createdAt: test.createdAt,
+      score: getTestScore(test)
+    }));
+    
+    // Return dashboard stats
+    res.json({
+      stats: {
+        totalTests,
+        completedTests,
+        failedTests,
+        pendingTests,
+        avgPerformance
+      },
+      recentTests: formattedRecentTests
+    });
+  } catch (error) {
+    res.status(500);
+    throw new Error(`Error fetching dashboard stats: ${error.message}`);
+  }
+});
+
+// Helper function to extract the main score from a test based on its type
+const getTestScore = (test) => {
+  if (!test.results || test.status !== 'completed') {
+    return null;
+  }
+  
+  switch (test.testType) {
+    case 'performance':
+      return test.results.performance && test.results.performance.score 
+        ? Math.round(test.results.performance.score * 100) 
+        : null;
+    case 'accessibility':
+      return test.results.accessibility && test.results.accessibility.score 
+        ? Math.round(test.results.accessibility.score * 100) 
+        : null;
+    case 'security':
+      // For security, we calculate a score based on the ratio of issues found
+      if (test.results.security && test.results.security.summary) {
+        const total = test.results.security.summary.total || 0;
+        return total > 0 
+          ? Math.round(100 - (total * 5)) // Deduct 5 points per issue, minimum 0
+          : 100;
+      }
+      return null;
+    case 'browser':
+      return test.results.browser && test.results.browser.overall && test.results.browser.overall.visualScore
+        ? test.results.browser.overall.visualScore
+        : null;
+    case 'all':
+      // For "all" test type, prioritize performance if available
+      return test.results.performance && test.results.performance.score
+        ? Math.round(test.results.performance.score * 100)
+        : null;
+    default:
+      return null;
+  }
+};
+
 module.exports = {
   createTest,
   getTests,
   getTestById,
   runTest,
   deleteTest,
+  getDashboardStats
 }; 
