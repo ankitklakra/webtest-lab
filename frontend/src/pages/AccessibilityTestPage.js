@@ -21,6 +21,11 @@ const AccessibilityTestPage = () => {
   
   // Page type - this determines which tests to display
   const pageType = 'accessibility'; // Will be used to filter tests
+
+  const formatScore = (score) => {
+    if (typeof score === 'number') return Math.round(score * 100);
+    return '-';
+  };
   
   useEffect(() => {
     // If user is not logged in, redirect to login
@@ -157,28 +162,30 @@ const AccessibilityTestPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Accessibility Testing</h1>
+      <button onClick={() => navigate('/dashboard')} className="text-blue-600 hover:underline mb-4">&larr; Back to Dashboard</button>
+      <h1 className="text-3xl font-bold mb-6">Accessibility Test (axe-core)</h1>
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Test Your Website Accessibility</h2>
+        <h2 className="text-xl font-semibold mb-4">Website Accessibility Audit</h2>
         <p className="mb-4 text-gray-600">
-          Analyze your website using Axe DevTools to find accessibility issues and ensure compliance with WCAG standards.
+          Scan your website for accessibility issues and WCAG violations using real axe-core in Chromium. Ensure your site is usable for everyone.
         </p>
-        
         <form onSubmit={handleSubmit} className="mb-4">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="mb-4">
             <input
               type="url"
               placeholder="https://example.com"
-              className="flex-grow border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               required
             />
+          </div>
+          <div>
             <button
               type="submit"
               disabled={loading}
-              className="bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg px-6 py-2 transition duration-300 disabled:opacity-50"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg px-6 py-2 transition duration-300 disabled:opacity-50"
             >
               {loading ? 'Running Test...' : 'Run Accessibility Test'}
             </button>
@@ -234,23 +241,47 @@ const AccessibilityTestPage = () => {
                       <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Issue</th>
                       <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Impact</th>
                       <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Element</th>
+                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Details</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {results.issues.map((issue, index) => (
-                      <tr key={index}>
-                        <td className="whitespace-normal py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                          {issue.description}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getImpactColor(issue.impact)}`}>
-                            {issue.impact}
-                          </span>
-                        </td>
-                        <td className="whitespace-normal px-3 py-4 text-sm text-gray-500 truncate max-w-xs">
-                          <code className="bg-gray-100 px-1 py-0.5 rounded text-xs">{issue.element}</code>
-                        </td>
-                      </tr>
+                      <React.Fragment key={index}>
+                        <tr>
+                          <td className="whitespace-normal py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                            {issue.description}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getImpactColor(issue.impact)}`}>
+                              {issue.impact}
+                            </span>
+                          </td>
+                          <td className="whitespace-normal px-3 py-4 text-sm text-gray-500 truncate max-w-xs">
+                            <code className="bg-gray-100 px-1 py-0.5 rounded text-xs">{issue.element}</code>
+                          </td>
+                          <td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
+                            <div>
+                              <div><b>Rule:</b> {issue.ruleId}</div>
+                              <div><b>Help:</b> {issue.help}</div>
+                              <div><b>Tags:</b> {issue.tags && issue.tags.join(', ')}</div>
+                              {issue.nodes && issue.nodes.length > 0 && (
+                                <div className="mt-2">
+                                  <b>Affected Nodes:</b>
+                                  <ul className="list-disc ml-5">
+                                    {issue.nodes.map((node, nidx) => (
+                                      <li key={nidx} className="mb-1">
+                                        <div><b>Target:</b> {node.target && node.target.join(', ')}</div>
+                                        <div><b>HTML:</b> <code className="bg-gray-100 px-1 py-0.5 rounded text-xs">{node.html}</code></div>
+                                        {node.failureSummary && <div><b>Failure:</b> {node.failureSummary}</div>}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>
@@ -271,8 +302,10 @@ const AccessibilityTestPage = () => {
 
       {/* Recent Accessibility Tests Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Recent Accessibility Tests</h2>
-        
+        <div className="flex flex-row justify-between items-center mb-4 gap-2 w-full">
+          <h2 className="text-xl font-semibold">Recent Accessibility Tests</h2>
+          <button onClick={() => navigate('/tests')} className="text-blue-600 hover:underline text-sm font-medium self-end">View all tests</button>
+        </div>
         {testsLoading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
@@ -287,46 +320,62 @@ const AccessibilityTestPage = () => {
             <p className="text-gray-500 mb-6">Run your first accessibility test using the form above</p>
           </div>
         ) : (
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <ul className="divide-y divide-gray-200">
-              {tests.map((test) => (
-                <li key={test._id}>
-                  <div 
-                    className="block hover:bg-gray-50 px-4 py-4 sm:px-6 cursor-pointer"
-                    onClick={() => navigate(`/tests/${test._id}`)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-blue-600 truncate">
-                        {test.url}
-                      </p>
-                      <div className="ml-2 flex-shrink-0 flex">
-                        <p
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                            test.status
-                          )}`}
-                        >
-                          {test.status.charAt(0).toUpperCase() + test.status.slice(1)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-2 sm:flex sm:justify-between">
-                      <div className="sm:flex">
-                        <p className="flex items-center text-sm text-gray-500">
-                          {test.results && test.results.accessibility && (
-                            <span className="mr-4">
-                              Accessibility Score: {Math.round(test.results.accessibility.score * 100)}
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                        <p>Created: {formatDate(test.createdAt)}</p>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+          <div className="bg-white shadow overflow-x-auto sm:rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">URL</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Status</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Created</th>
+                  <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Accessibility Score</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Details</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {(tests.slice(0, 10)).map((test) => (
+                  <tr key={test._id} className="hover:bg-gray-50 cursor-pointer">
+                    <td className="px-4 py-2 text-sm text-green-600 truncate max-w-xs" onClick={() => navigate(`/tests/${test._id}`)}>{test.url}</td>
+                    <td className="px-4 py-2 text-sm">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(test.status)}`}>{test.status.charAt(0).toUpperCase() + test.status.slice(1)}</span>
+                    </td>
+                    <td className="px-4 py-2 text-sm">{formatDate(test.createdAt)}</td>
+                    <td className="px-4 py-2 text-center text-sm">
+                      {test.status === 'completed' && test.results && test.results.accessibility && typeof test.results.accessibility.score === 'number' ? (
+                        <div className="flex items-center w-32 mx-auto">
+                          <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                            <div
+                              className={`h-2.5 rounded-full ${
+                                formatScore(test.results.accessibility.score) >= 90 ? 'bg-green-600' :
+                                formatScore(test.results.accessibility.score) >= 70 ? 'bg-yellow-500' :
+                                'bg-red-600'
+                              }`}
+                              style={{ width: `${formatScore(test.results.accessibility.score)}%` }}
+                            ></div>
+                          </div>
+                          <span className={`text-xs font-semibold ml-1 ${
+                            formatScore(test.results.accessibility.score) >= 90 ? 'text-green-700' :
+                            formatScore(test.results.accessibility.score) >= 70 ? 'text-yellow-700' :
+                            'text-red-700'
+                          }`}>
+                            {formatScore(test.results.accessibility.score)}%
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-sm">
+                      <button
+                        className="text-green-600 hover:underline"
+                        onClick={() => navigate(`/tests/${test._id}`)}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

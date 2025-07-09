@@ -37,6 +37,11 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/tests" className="text-white hover:text-blue-200">
+                  Results
+                  </Link>
+                </li>
+                <li>
                   <button
                     onClick={() => {
                       logoutHandler();
@@ -70,6 +75,8 @@ const Navbar = () => {
           className="lg:hidden text-white focus:outline-none"
           onClick={toggleMenu}
           aria-label="Toggle menu"
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {isMenuOpen ? (
@@ -83,33 +90,45 @@ const Navbar = () => {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="lg:hidden mt-2 px-4">
-          <nav className="bg-blue-700 rounded-md shadow-lg p-4 space-y-2">
+        <div className="lg:hidden w-full mt-2">
+          <nav className="bg-blue-700 rounded-md shadow-md p-4 mx-0">
             <ul className="flex flex-col space-y-2">
               {userInfo ? (
                 <>
-                  <Link to="/dashboard" className="text-white" onClick={toggleMenu}>
-                    Dashboard
+                  <li>
+                    <Link to="/dashboard" className="text-white block py-2 px-2 rounded hover:bg-blue-600 transition" onClick={toggleMenu}>
+                      Dashboard
+                    </Link>
+                  </li>
+                  <li>
+                  <Link to="/tests" className="text-white block py-2 px-2 rounded hover:bg-blue-600 transition" onClick={toggleMenu}>
+                    Results
                   </Link>
-
-                  <button
-                    onClick={() => {
-                      logoutHandler();
-                      toggleMenu();
-                    }}
-                    className="text-white text-left"
-                  >
-                    Logout
-                  </button>
+                </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        logoutHandler();
+                        toggleMenu();
+                      }}
+                      className="text-white block py-2 px-2 rounded hover:bg-blue-600 transition text-left w-full"
+                    >
+                      Logout
+                    </button>
+                  </li>
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="text-white" onClick={toggleMenu}>
-                    Login
-                  </Link>
-                  <Link to="/register" className="text-white" onClick={toggleMenu}>
-                    Register
-                  </Link>
+                  <li>
+                    <Link to="/login" className="text-white block py-2 px-2 rounded hover:bg-blue-600 transition" onClick={toggleMenu}>
+                      Login
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/register" className="text-white block py-2 px-2 rounded hover:bg-blue-600 transition" onClick={toggleMenu}>
+                      Register
+                    </Link>
+                  </li>
                 </>
               )}
             </ul>

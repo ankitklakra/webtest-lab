@@ -11,12 +11,7 @@ const BrowserTestPage = () => {
   const [testsLoading, setTestsLoading] = useState(true);
   const [testsError, setTestsError] = useState('');
   const [message, setMessage] = useState('');
-  const [selectedBrowsers, setSelectedBrowsers] = useState({
-    chrome: true,
-    firefox: true,
-    edge: false,
-    safari: false
-  });
+  // Remove selectedBrowsers state and all related logic
 
   const navigate = useNavigate();
 
@@ -86,24 +81,19 @@ const BrowserTestPage = () => {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   };
 
-  // Handle browser checkbox change
-  const handleBrowserChange = (browserName) => {
-    setSelectedBrowsers({
-      ...selectedBrowsers,
-      [browserName]: !selectedBrowsers[browserName]
-    });
+  // Add this helper function near the top, after imports
+  const formatScore = (score) => {
+    if (typeof score === 'number') return Math.round(score * 100);
+    return '-';
   };
+
+  // Remove handleBrowserChange and browser selection UI
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!url) {
       setError('Please enter a URL');
-      return;
-    }
-
-    if (!Object.values(selectedBrowsers).some(selected => selected)) {
-      setError('Please select at least one browser');
       return;
     }
 
@@ -125,41 +115,36 @@ const BrowserTestPage = () => {
         },
       };
 
-      // First create a test
+      // First create a test (no browsers param)
       const { data: newTest } = await axios.post(
         '/api/tests',
         {
           url: url,
           testType: 'browser',
-          parameters: {
-            browsers: Object.keys(selectedBrowsers).filter(b => selectedBrowsers[b])
-          }
+          parameters: {}
         },
         config
       );
 
       // Then run the test
-      setMessage('Browser compatibility test initiated. Running Selenium tests...');
+      setMessage('Browser compatibility test initiated. Running test in Chromium...');
       const { data: runResult } = await axios.put(
         `/api/tests/${newTest._id}/run`,
         {},
         config
       );
 
-       // Add the new test to the tests list if it matches the page type
-       if (runResult.testType === pageType || (pageType === 'browser' && runResult.testType === 'browser')) {
+      if (runResult.testType === pageType || (pageType === 'browser' && runResult.testType === 'browser')) {
         setTests([runResult, ...tests]);
       }
 
-      // Redirect to test detail page
       navigate(`/tests/${runResult._id}`);
     } catch (err) {
-      console.error('Browser test error:', err);
-      setError(
-        err.response?.data?.error ||
-        err.response?.data?.message ||
-        'Failed to run browser test'
-      );
+      let msg = err.response?.data?.error || err.response?.data?.message || 'Failed to run browser test';
+      if (msg.includes('Waiting failed') || msg.includes('timeout')) {
+        msg = 'The website took too long to load or blocked automated testing. Try another site or check your URL.';
+      }
+      setError(msg);
       setLoading(false);
     } finally {
       setLoading(false);
@@ -168,14 +153,14 @@ const BrowserTestPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Browser Compatibility Testing</h1>
+      <button onClick={() => navigate('/dashboard')} className="text-blue-600 hover:underline mb-4">&larr; Back to Dashboard</button>
+      <h1 className="text-3xl font-bold mb-6">Browser Compatibility Test (axe-core, Chromium)</h1>
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Test Your Website Across Browsers</h2>
+        <h2 className="text-xl font-semibold mb-4">Browser Compatibility & Accessibility</h2>
         <p className="mb-4 text-gray-600">
-          Analyze your website using Selenium to check how it renders and functions on different browsers.
+          Test your website in Chromium for browser compatibility and accessibility issues using real axe-core. Get screenshots, errors, and accessibility results.
         </p>
-
         <form onSubmit={handleSubmit} className="mb-4">
           <div className="mb-4">
             <input
@@ -187,59 +172,13 @@ const BrowserTestPage = () => {
               required
             />
           </div>
-
-          <div className="mb-4">
-            <p className="font-medium mb-2">Select browsers to test:</p>
-            <div className="flex flex-wrap gap-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-indigo-600"
-                  checked={selectedBrowsers.chrome}
-                  onChange={() => handleBrowserChange('chrome')}
-                />
-                <span className="ml-2">Chrome</span>
-              </label>
-
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-indigo-600"
-                  checked={selectedBrowsers.firefox}
-                  onChange={() => handleBrowserChange('firefox')}
-                />
-                <span className="ml-2">Firefox</span>
-              </label>
-
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-indigo-600"
-                  checked={selectedBrowsers.edge}
-                  onChange={() => handleBrowserChange('edge')}
-                />
-                <span className="ml-2">Edge</span>
-              </label>
-
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-indigo-600"
-                  checked={selectedBrowsers.safari}
-                  onChange={() => handleBrowserChange('safari')}
-                />
-                <span className="ml-2">Safari</span>
-              </label>
-            </div>
-          </div>
-
           <div>
             <button
               type="submit"
               disabled={loading}
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg px-6 py-2 transition duration-300 disabled:opacity-50"
             >
-              {loading ? 'Running Tests...' : 'Run Browser Tests'}
+              {loading ? 'Running Test...' : 'Run Browser Test'}
             </button>
           </div>
           {error && <p className="mt-2 text-red-600">{error}</p>}
@@ -352,8 +291,10 @@ const BrowserTestPage = () => {
 
       {/* Recent Browser Tests Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Recent Browser Tests</h2>
-
+        <div className="flex flex-row justify-between items-center mb-4 gap-2 w-full">
+          <h2 className="text-xl font-semibold">Recent Browser Tests</h2>
+          <button onClick={() => navigate('/tests')} className="text-blue-600 hover:underline text-sm font-medium self-end">View all tests</button>
+        </div>
         {testsLoading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
@@ -364,49 +305,75 @@ const BrowserTestPage = () => {
           </div>
         ) : tests.length === 0 ? (
           <div className="text-center py-12 bg-white shadow-md rounded-lg">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">No browser tests found</h2>
-            <p className="text-gray-500 mb-6">Run your first browser compatibility test using the form above</p>
+            <h2 className="text-xl font-semibold text-gray-700 mb-4">No browser compatibility tests found</h2>
+            <p className="text-gray-500 mb-6">Run your first browser test using the form above</p>
           </div>
         ) : (
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <ul className="divide-y divide-gray-200">
-              {tests.map((test) => (
-                <li key={test._id}>
-                  <div
-                    className="block hover:bg-gray-50 px-4 py-4 sm:px-6 cursor-pointer"
-                    onClick={() => navigate(`/tests/${test._id}`)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-blue-600 truncate">
-                        {test.url}
-                      </p>
-                      <div className="ml-2 flex-shrink-0 flex">
-                        <p
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                            test.status
-                          )}`}
-                        >
-                          {test.status.charAt(0).toUpperCase() + test.status.slice(1)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-2 sm:flex sm:justify-between">
-                      <div className="sm:flex">
-                        {test.parameters && test.parameters.browsers && (
-                          <p className="flex items-center text-sm text-gray-500">
-                            <span className="mr-1">Browsers tested:</span>
-                            {test.parameters.browsers.join(', ')}
-                          </p>
+          <div className="bg-white shadow overflow-x-auto sm:rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">URL</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Status</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Created</th>
+                  <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Browser Score</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Details</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {(tests.slice(0, 10)).map((test) => {
+                  let score = test.results && test.results.browserCompatibility && typeof test.results.browserCompatibility.score === 'number'
+                    ? test.results.browserCompatibility.score
+                    : undefined;
+                  if (typeof score === 'undefined' && test.results && test.results.browserCompatibility && test.results.browserCompatibility.summary) {
+                    const totalIssues = test.results.browserCompatibility.summary.totalIssues ?? 0;
+                    score = Math.max(0, 1 - (totalIssues / 20));
+                  }
+                  return (
+                    <tr key={test._id} className="hover:bg-gray-50 cursor-pointer">
+                      <td className="px-4 py-2 text-sm text-indigo-600 truncate max-w-xs" onClick={() => navigate(`/tests/${test._id}`)}>{test.url}</td>
+                      <td className="px-4 py-2 text-sm">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(test.status)}`}>{test.status.charAt(0).toUpperCase() + test.status.slice(1)}</span>
+                      </td>
+                      <td className="px-4 py-2 text-sm">{formatDate(test.createdAt)}</td>
+                      <td className="px-4 py-2 text-center text-sm">
+                        {test.status === 'completed' && typeof score === 'number' ? (
+                          <div className="flex items-center w-32 mx-auto">
+                            <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                              <div
+                                className={`h-2.5 rounded-full ${
+                                  formatScore(score) >= 90 ? 'bg-green-600' :
+                                  formatScore(score) >= 70 ? 'bg-yellow-500' :
+                                  'bg-red-600'
+                                }`}
+                                style={{ width: `${formatScore(score)}%` }}
+                              ></div>
+                            </div>
+                            <span className={`text-xs font-semibold ml-1 ${
+                              formatScore(score) >= 90 ? 'text-green-700' :
+                              formatScore(score) >= 70 ? 'text-yellow-700' :
+                              'text-red-700'
+                            }`}>
+                              {formatScore(score)}%
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
                         )}
-                      </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                        <p>Created: {formatDate(test.createdAt)}</p>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                      </td>
+                      <td className="px-4 py-2 text-sm">
+                        <button
+                          className="text-indigo-600 hover:underline"
+                          onClick={() => navigate(`/tests/${test._id}`)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

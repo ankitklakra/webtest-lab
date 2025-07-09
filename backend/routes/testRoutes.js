@@ -6,7 +6,8 @@ const {
   getTestById,
   runTest,
   deleteTest,
-  getDashboardStats
+  getDashboardStats,
+  getAllTestsPaginated
 } = require('../controllers/testController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -18,6 +19,10 @@ router.route('/')
 // Get dashboard statistics
 router.route('/stats')
   .get(protect, getDashboardStats);
+
+// Add paginated tests endpoint
+router.route('/paginated')
+  .get(protect, getAllTestsPaginated);
 
 router.route('/:id')
   .get(protect, getTestById)

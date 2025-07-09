@@ -84,30 +84,20 @@ const DashboardPage = () => {
   }, [navigate]);
   
   useEffect(() => {
-    // Set mounted flag
     isMounted.current = true;
-    
-    // If user is not logged in, redirect to login
     if (!userInfo) {
       navigate('/login');
       return;
     }
-    
-    // Fetch dashboard data only once
     fetchDashboardData();
-    
-    // Cleanup function
-    return () => {
-      // Mark component as unmounted to prevent state updates after unmount
-      isMounted.current = false;
-    };
-  }, [navigate, fetchDashboardData, userInfo]);
+    return () => { isMounted.current = false; };
+  }, [navigate, userInfo]);
   
   // Test type information - Memoize this array to prevent recreation on each render
   const testTypes = useMemo(() => [
     {
       title: "Performance Testing",
-      description: "Analyze load times, rendering performance, and overall speed with Google Lighthouse integration.",
+      description: "Analyze speed, load times, and UX with Google Lighthouse. Identify bottlenecks and boost performance.",
       icon: (
         <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -119,7 +109,7 @@ const DashboardPage = () => {
     },
     {
       title: "Security Scanning",
-      description: "Identify security vulnerabilities and potential threats with OWASP ZAP-like security analysis.",
+      description: "Scan for vulnerabilities and best practices using Mozilla Observatory. Get a clear security grade and actionable fixes.",
       icon: (
         <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -131,7 +121,7 @@ const DashboardPage = () => {
     },
     {
       title: "Accessibility Testing",
-      description: "Evaluate WCAG compliance and identify accessibility issues for diverse user needs.",
+      description: "Detect accessibility issues and WCAG violations using axe-core. Make your site usable for everyone.",
       icon: (
         <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -142,8 +132,8 @@ const DashboardPage = () => {
       hoverColor: "hover:bg-green-600"
     },
     {
-      title: "Browser Testing",
-      description: "Test functionality and appearance across different browsers using Selenium automation.",
+      title: "Browser Compatibility",
+      description: "Check browser compatibility and accessibility issues using axe-core in Chromium.",
       icon: (
         <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
@@ -152,7 +142,19 @@ const DashboardPage = () => {
       route: "/browser-test",
       color: "bg-purple-500",
       hoverColor: "hover:bg-purple-600"
-    }
+    },
+    {
+      title: "SEO Testing",
+      description: "Improve search visibility and ranking with Lighthouse-powered SEO audits and recommendations.",
+      icon: (
+        <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+      ),
+      route: "/seo-test",
+      color: "bg-yellow-500",
+      hoverColor: "hover:bg-yellow-600"
+    },
   ], []);
 
   // Extract the LoadingSpinner component to avoid re-renders
@@ -212,11 +214,10 @@ const DashboardPage = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Tests</p>
-                  <p className="text-2xl font-bold text-gray-800">{stats.totalTests}</p>
+                  <p className="text-2xl font-bold text-gray-800">{stats?.totalTests ?? 0}</p>
                 </div>
               </div>
             </div>
-            
             <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-green-500">
               <div className="flex items-center">
                 <div className="p-3 rounded-full bg-green-100 mr-4">
@@ -226,11 +227,10 @@ const DashboardPage = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Completed Tests</p>
-                  <p className="text-2xl font-bold text-gray-800">{stats.completedTests}</p>
+                  <p className="text-2xl font-bold text-gray-800">{stats?.completedTests ?? 0}</p>
                 </div>
               </div>
             </div>
-            
             <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-red-500">
               <div className="flex items-center">
                 <div className="p-3 rounded-full bg-red-100 mr-4">
@@ -240,11 +240,10 @@ const DashboardPage = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Failed Tests</p>
-                  <p className="text-2xl font-bold text-gray-800">{stats.failedTests}</p>
+                  <p className="text-2xl font-bold text-gray-800">{stats?.failedTests ?? 0}</p>
                 </div>
               </div>
             </div>
-            
             <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-purple-500">
               <div className="flex items-center">
                 <div className="p-3 rounded-full bg-purple-100 mr-4">
@@ -254,13 +253,12 @@ const DashboardPage = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Avg Performance</p>
-                  <p className="text-2xl font-bold text-gray-800">{stats.avgPerformance}%</p>
+                  <p className="text-2xl font-bold text-gray-800">{stats?.avgPerformance ?? 0}%</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
         {/* Test Type Cards */}
         <div className="mb-10">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Test Types</h2>
@@ -270,7 +268,6 @@ const DashboardPage = () => {
             ))}
           </div>
         </div>
-        
         {/* Recent Tests */}
         <div>
           <div className="flex justify-between items-center mb-4">
@@ -279,8 +276,7 @@ const DashboardPage = () => {
               View all tests
             </Link>
           </div>
-          
-          {recentTests.length > 0 ? (
+          {(Array.isArray(recentTests) && recentTests.length > 0) ? (
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -307,7 +303,7 @@ const DashboardPage = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {recentTests.map((test) => (
+                    {(recentTests.slice(0, 10)).map((test) => (
                       <tr key={test.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900 truncate max-w-xs">
@@ -328,12 +324,22 @@ const DashboardPage = () => {
                           {formatDate(test.createdAt)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {test.status === 'completed' ? (
-                            <div className="flex items-center">
-                              <span className={`text-sm font-medium ${
-                                test.score >= 90 ? 'text-green-600' : 
-                                test.score >= 70 ? 'text-yellow-600' : 
-                                'text-red-600'
+                          {test.status === 'completed' && typeof test.score === 'number' ? (
+                            <div className="flex items-center w-32">
+                              <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                                <div
+                                  className={`h-2.5 rounded-full ${
+                                    test.score >= 90 ? 'bg-green-600' :
+                                    test.score >= 70 ? 'bg-yellow-500' :
+                                    'bg-red-600'
+                                  }`}
+                                  style={{ width: `${test.score}%` }}
+                                ></div>
+                              </div>
+                              <span className={`text-xs font-semibold ml-1 ${
+                                test.score >= 90 ? 'text-green-700' :
+                                test.score >= 70 ? 'text-yellow-700' :
+                                'text-red-700'
                               }`}>
                                 {test.score}%
                               </span>
@@ -358,7 +364,10 @@ const DashboardPage = () => {
             </div>
           ) : (
             <div className="bg-white shadow rounded-lg p-6 text-center">
-              
+              <svg className="mx-auto mb-4 w-12 h-12 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6 1a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">No tests yet</h3>
+              <p className="text-gray-500 mb-4">Start your first test to see results here.</p>
+              <Link to="/performance-test" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md px-6 py-2 transition duration-300">Start a Test</Link>
             </div>
           )}
         </div>
@@ -377,13 +386,11 @@ const DashboardPage = () => {
               <h1 className="text-3xl font-bold text-white sm:text-4xl">
                 Dashboard
               </h1>
+              <p className="mt-2 text-blue-100 text-lg font-medium">Monitor, analyze, and improve your website’s quality.</p>
               {userInfo && (
-                <p className="mt-1 text-blue-100">
-                  Welcome back, {userInfo.name || 'User'}
-                </p>
+                <p className="mt-1 text-blue-100 text-base">Welcome back, {userInfo.name || 'User'}!</p>
               )}
             </div>
-            
           </div>
         </div>
       </div>

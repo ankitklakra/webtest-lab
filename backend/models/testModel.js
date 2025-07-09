@@ -48,6 +48,30 @@ const testSchema = mongoose.Schema(
           type: Number,
           default: 0,
         },
+        grade: {
+          type: String,
+        },
+        detailsUrl: {
+          type: String,
+        },
+        algorithmVersion: {
+          type: Number,
+        },
+        scannedAt: {
+          type: Date,
+        },
+        statusCode: {
+          type: Number,
+        },
+        testsFailed: {
+          type: Number,
+        },
+        testsPassed: {
+          type: Number,
+        },
+        testsQuantity: {
+          type: Number,
+        },
         vulnerabilities: [
           {
             name: String,
@@ -78,6 +102,16 @@ const testSchema = mongoose.Schema(
             description: String,
             impact: String,
             element: String,
+            ruleId: String, // axe-core rule id
+            help: String,   // axe-core help text
+            tags: [String], // axe-core tags
+            nodes: [
+              {
+                target: [String],
+                html: String,
+                failureSummary: String
+              }
+            ]
           },
         ],
         passCount: Number,
@@ -116,6 +150,36 @@ const testSchema = mongoose.Schema(
           visualScore: Number,
           functionalScore: Number,
           performanceScore: Number
+        }
+      },
+      browserCompatibility: {
+        issues: [
+          {
+            description: String,
+            impact: String,
+            element: String,
+            ruleId: String,
+            help: String,
+            tags: [String],
+            nodes: [
+              {
+                target: [String],
+                html: String,
+                failureSummary: String
+              }
+            ]
+          }
+        ],
+        screenshots: [
+          {
+            browser: String,
+            url: String
+          }
+        ],
+        errors: [String],
+        summary: {
+          totalIssues: Number,
+          errorCount: Number
         }
       }
     },

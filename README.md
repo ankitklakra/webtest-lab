@@ -4,78 +4,90 @@ A SaaS platform for automated website testing, including performance, security, 
 
 ## Project Status
 
-**Current State**: Working prototype with functioning:
-- User authentication (register, login)
-- Testing dashboard
-- Multiple test types implementation:
-  - Performance testing with Lighthouse
-  - Security scanning with OWASP ZAP (simulated)
-  - Accessibility testing with axe-core
-  - Browser compatibility testing with Selenium (simulated)
-  - SEO testing
-- Detailed test result visualization
-- Test history and management
+**Current State:**
+- Fully functional prototype
+- Responsive, modern UI (login, register, dashboard, navbar, test pages)
+- Inline collapsible mobile menu for easy navigation on all devices
+- Friendly onboarding for new users 
+- Robust error handling for registration, login, and dashboard
+- Detailed test result visualization and history
 
 ## Features
 
+- User authentication (register, login, profile management)
 - Comprehensive test reports for web applications
 - Performance and accessibility testing with Google Lighthouse
-- Security scanning with OWASP ZAP
-- UI automation testing using Selenium and Puppeteer
+- Security scanning 
 - SEO testing and recommendations
-- User-friendly dashboard
+- Browser compatibility and accessibility testing (axe-core)
+- User-friendly dashboard and test management
 - Historical test data analysis
+- Responsive design for all devices
 
 ## Technology Stack
 
-- **Frontend**: React.js, Tailwind CSS
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB
-- **Authentication**: JWT
-- **Testing Tools**: Google Lighthouse, Puppeteer, axe-core (with plans for Selenium, JMeter/k6)
+- **Frontend:** React.js, Tailwind CSS, React Router, Axios
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB
+- **Authentication:** JWT
+- **Testing Tools:** Google Lighthouse, Puppeteer, axe-core
 
-## Getting Started
+## Quick Start
 
 ### Prerequisites
-
 - Node.js (v14+)
 - npm or yarn
+- MongoDB (local or cloud)
 
 ### Installation
 
-1. Clone the repository
-```
-git clone https://github.com/yourusername/webtest-lab.git
-cd webtest-lab
-```
+1. **Clone the repository**
+   ```
+   git clone https://github.com/ankitklakra/webtest-lab.git
+   cd webtest-lab
+   ```
 
-2. Install dependencies
-```
-npm install
-cd frontend
-npm install
-cd ../backend
-npm install
-```
+2. **Install backend dependencies**
+   ```
+   cd backend
+   npm install
+   cp .env.example .env
+   # Edit .env with your MongoDB URI and JWT secret
+   npm run dev
+   ```
 
-3. Set up environment variables
-```
-cp backend/.env.example backend/.env
-```
-Edit the .env file with your configuration
+3. **Install frontend dependencies**
+   ```
+   cd ../frontend
+   npm install
+   npm start
+   ```
+   The frontend will run at [http://localhost:3000](http://localhost:3000)
 
-4. Start the development server
-```
-npm run dev
-```
+## How to Use
 
-## Testing Types
+1. **Register a new account** or log in with existing credentials.
+2. **Dashboard**: View your test stats, recent tests, and available test types.
+3. **Run a Test**: Choose a test type (Performance, Security, Accessibility, SEO, Browser) and enter your website URL.
+4. **View Results**: See detailed reports, scores, and recommendations for each test.
+5. **Test History**: Access all your previous tests and results from the dashboard or the "Results" page.
+6. **Mobile Friendly**: All pages are fully responsive and easy to use on any device.
 
-1. **Performance Testing**: Uses Google Lighthouse to analyze page load metrics, Core Web Vitals, and best practices.
-2. **Accessibility Testing**: Implements axe-core to check WCAG compliance and identify accessibility issues.
-3. **Security Testing**: Uses simulated OWASP ZAP scanning to identify potential security vulnerabilities.
-4. **Browser Compatibility**: Tests website rendering and functionality across different browsers (Chrome, Firefox, Edge, Safari).
-5. **SEO Analysis**: Evaluates search engine optimization factors and provides recommendations.
+## Project Structure
+
+```
+webtest-lab/
+├── backend/         # Express.js API
+├── frontend/        # React.js app
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── ...
+│   └── ...
+└── README.md
+```
 
 ## License
 
