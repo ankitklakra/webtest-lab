@@ -91,7 +91,7 @@ const DashboardPage = () => {
     }
     fetchDashboardData();
     return () => { isMounted.current = false; };
-  }, [navigate, userInfo]);
+  }, [navigate, userInfo, fetchDashboardData]);
   
   // Test type information - Memoize this array to prevent recreation on each render
   const testTypes = useMemo(() => [

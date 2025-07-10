@@ -41,11 +41,7 @@ const TestDetailPage = () => {
     return Math.round(score * 100);
   };
 
-  const getScoreClass = (score) => {
-    if (score >= 0.9) return 'text-green-800 bg-green-100';
-    if (score >= 0.5) return 'text-yellow-800 bg-yellow-100';
-    return 'text-red-700 bg-red-100';
-  };
+
 
   // const getSeverityClass = (severity) => {
   //   switch (severity.toLowerCase()) {
